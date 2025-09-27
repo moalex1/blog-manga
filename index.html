@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entre Viñetas - Blog Interactivo de Manga</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f0f0f5; color:#333; transition: background 0.5s;}
+header { background: url('https://wallpaperaccess.com/full/1643588.jpg') no-repeat center center/cover; color:white; padding:60px 20px; text-align:center; text-shadow:2px 2px 8px #000; }
+header h1{ font-size:3rem; margin:0;}
+header p{ font-size:1.2rem; }
+nav { background:#40407a; display:flex; justify-content:center; gap:20px; flex-wrap:wrap; padding:10px; }
+nav a { color:white; text-decoration:none; font-weight:bold; cursor:pointer; transition:0.3s; }
+nav a:hover { text-decoration:underline; transform:scale(1.1); }
+main { max-width:1000px; margin:20px auto; padding:20px; background:rgba(255,255,255,0.95); border-radius:15px; box-shadow:0 0 20px rgba(0,0,0,0.2); transition:background 0.5s;}
+h1,h2{ color:#2c2c54; }
+.buscador { text-align:center; margin-bottom:20px; display:flex; justify-content:center; gap:10px;}
+.buscador input { width:70%; max-width:400px; padding:10px; border-radius:5px; border:1px solid #ccc; transition:0.3s; }
+.buscador input:focus { border-color:#2c2c54; box-shadow:0 0 8px rgba(44,44,84,0.5); }
+.buscador button{ padding:10px 15px; border:none; border-radius:5px; background:#2c2c54; color:white; cursor:pointer; transition:0.3s;}
+.buscador button:hover{ background:#40407a; }
+
+/* MINIATURAS */
+.reseña-thumb { display:flex; align-items:center; margin-bottom:20px; cursor:pointer; border-radius:10px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.2); transition: transform 0.3s, box-shadow 0.3s; }
+.reseña-thumb:hover { transform: perspective(600px) rotateY(5deg) scale(1.05); box-shadow:0 4px 20px rgba(0,0,0,0.4);}
+.reseña-thumb img { width:120px; height:160px; object-fit:cover; margin-right:15px; border-radius:10px; transition:0.3s; }
+.reseña-thumb span { font-weight:bold; font-size:1.1rem; }
+
+/* SECCIONES */
+.seccion-contenido { display:none; margin-bottom:30px; transition:opacity 0.5s;}
+.seccion-contenido.show{ display:block; opacity:1; }
+
+/* BANNERS */
+.banner { background:linear-gradient(to right, #2c2c54, #40407a); color:white; padding:15px; border-radius:10px; margin-bottom:15px; animation:fadeBanner 2s ease-in-out infinite alternate; }
+@keyframes fadeBanner { from{opacity:0.7;} to{opacity:1;} }
+
+/* MODALES */
+.modal { display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.8); overflow-y:auto; padding:40px 20px; animation:fadeIn 0.4s; }
+@keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+.modal-content { background:white; margin:auto; padding:20px; border-radius:15px; max-width:800px; position:relative; animation:slideIn 0.4s; }
+@keyframes slideIn{ from{transform:translateY(-60px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+.modal-content img{ max-width:150px; float:left; margin-right:20px; border-radius:10px; }
+.modal-content h2{ margin-top:0; }
+.cerrar{ color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer; transition:0.3s; }
+.cerrar:hover{ color:#000; transform:scale(1.2); }
+
+.comentarios{ clear:both; margin-top:20px; border-top:1px solid #ccc; padding-top:10px; }
+.comentarios h3{ margin-bottom:10px; }
+.comentario{ border-bottom:1px solid #eee; padding:5px 0; }
+
+.genero-icon { margin-right:10px; color:#2c2c54; }
+
+/* TEMAS POR MANGA */
+#modal-deathnote .modal-content{ border-left:5px solid #000; }
+#modal-naruto .modal-content{ border-left:5px solid #f39c12; }
+#modal-bleach .modal-content{ border-left:5px solid #3498db; }
+#modal-onepiece .modal-content{ border-left:5px solid #e74c3c; }
+#modal-quintillizas .modal-content{ border-left:5px solid #9b59b6; }
+#modal-nisekoi .modal-content{ border-left:5px solid #f1c40f; }
+
+@media(max-width:600px){ .modal-content img{ float:none; display:block; margin:0 auto 15px auto;} .reseña-thumb{flex-direction:column;align-items:center;} .reseña-thumb img{ margin-bottom:10px; } }
+</style>
+</head>
+<body>
+
+<header>
+<h1>Entre Viñetas</h1>
+<p>Blog Interactivo de Manga</p>
+</header>
+
+<nav>
+<a onclick="toggleSeccion('reseñas')">Reseñas</a>
+<a onclick="toggleSeccion('recomendaciones')">Recomendaciones</a>
+<a onclick="toggleSeccion('noticias')">Noticias</a>
+<a onclick="toggleSeccion('opciones')">Opciones</a>
+</nav>
+
+<main>
+<div class="buscador">
+<input type="text" id="searchInput" placeholder="Buscar manga...">
+<button onclick="buscarManga()">🔍 Buscar</button>
+</div>
+
+<div id="reseñas" class="seccion-contenido show">
+<div class="reseña-thumb" onclick="openModal('modal-deathnote')"><img src="https://upload.wikimedia.org/wikipedia/en/6/6f/Death_Note_Vol_1.jpg"><span>Death Note</span></div>
+<div class="reseña-thumb" onclick="openModal('modal-naruto')"><img src="https://upload.wikimedia.org/wikipedia/en/9/94/NarutoCoverTankobon1.jpg"><span>Naruto</span></div>
+<div class="reseña-thumb" onclick="openModal('modal-bleach')"><img src="https://upload.wikimedia.org/wikipedia/en/c/c3/Bleach1.jpg"><span>Bleach</span></div>
+<div class="reseña-thumb" onclick="openModal('modal-onepiece')"><img src="https://upload.wikimedia.org/wikipedia/en/6/65/OnePieceCover1.jpg"><span>One Piece</span></div>
+<div class="reseña-thumb" onclick="openModal('modal-quintillizas')"><img src="https://upload.wikimedia.org/wikipedia/en/8/83/The_Five_Daughters.jpg"><span>Las Quintillizas</span></div>
+<div class="reseña-thumb" onclick="openModal('modal-nisekoi')"><img src="https://upload.wikimedia.org/wikipedia/en/d/dc/NisekoiVolume1.jpg"><span>Nisekoi</span></div>
+</div>
+
+<div id="recomendaciones" class="seccion-contenido">
+<h2>🌟 Recomendaciones</h2>
+<div class="banner"><i class="fas fa-dragon genero-icon"></i>Attack on Titan – Acción intensa</div>
+<div class="banner"><i class="fas fa-fire genero-icon"></i>Demon Slayer – Animación espectacular</div>
+<div class="banner"><i class="fas fa-users genero-icon"></i>My Hero Academia – Shonen clásico</div>
+<div class="banner"><i class="fas fa-clock genero-icon"></i>Tokyo Revengers – Suspenso y viajes</div>
+</div>
+
+<div id="noticias" class="seccion-contenido">
+<h2>📰 Noticias</h2>
+<div class="banner"><i class="fas fa-anchor genero-icon"></i>One Piece supera los 1200 capítulos</div>
+<div class="banner"><i class="fas fa-user ninja genero-icon"></i>Naruto recibe nueva edición remasterizada</div>
+<div class="banner"><i class="fas fa-heart genero-icon"></i>Nuevo anime de Las Quintillizas anunciado</div>
+</div>
+
+<div id="opciones" class="seccion-contenido">
+<h2>⚙️ Opciones</h2>
+<ul>
+<li>Modo oscuro/claro (próximamente)</li>
+<li>Filtrado por géneros de manga</li>
+<li>Guardar favoritos</li>
+</ul>
+</div>
+</main>
+
+<footer>
+<p>© 2025 Entre Viñetas - Blog Interactivo de Manga</p>
+</footer>
+
+<!-- MODALES CORREGIDOS COMPLETOS -->
+
+<!-- Death Note -->
+<div id="modal-deathnote" class="modal">
+<div class="modal-content">
+<span class="cerrar" onclick="closeModal('modal-deathnote')">&times;</span>
+<img src="https://upload.wikimedia.org/wikipedia/en/6/6f/Death_Note_Vol_1.jpg">
+<h2>Death Note <i class="fas fa-skull-crossbones genero-icon"></i></h2>
+<p><strong>Autor:</strong> Tsugumi Ohba / Takeshi Obata</p>
+<p><strong>Género:</strong> Seinen, Suspenso, Psicológico</p>
+<h3>Resumen</h3>
+<p>Light Yagami encuentra un cuaderno que permite matar a cualquiera cuyo nombre escriba en él, desatando un duelo psicológico con L.</p>
+<h3>Opinión</h3>
+<ul><li>✔️ Duelo intelectual atrapante</li><li>✔️ Dibujo impecable</li><li>❌ Segunda mitad pierde fuerza</li></ul>
+<h3>Conclusión</h3><p>⭐9/10</p>
+<div class="comentarios">
+<h3>Comentarios (moderados)</h3>
+<div id="deathnote-comentarios"></div>
+<input type="text" id="deathnote-input" placeholder="Escribe tu comentario...">
+<button onclick="agregarComentario('deathnote')">Enviar</button>
+</div>
+</div>
+</div>
+
+<!-- Naruto -->
+<div id="modal-naruto" class="modal">
+<div class="modal-content">
+<span class="cerrar" onclick="closeModal('modal-naruto')">&times;</span>
+<img src="https://upload.wikimedia.org/wikipedia/en/9/94/NarutoCoverTankobon1.jpg">
+<h2>Naruto <i class="fas fa-user ninja genero-icon"></i></h2>
+<p><strong>Autor:</strong> Masashi Kishimoto</p>
+<p><strong>Género:</strong> Shonen, Acción, Aventura</p>
+<h3>Resumen</h3>
+<p>Naruto Uzumaki, un joven ninja con el espíritu del zorro demonio sellado dentro de él, busca reconocimiento y sueña con convertirse en Hokage.</p>
+<h3>Opinión</h3>
+<ul><li>✔️ Desarrollo de personajes</li><li>✔️ Batallas estratégicas</li><li>❌ Algunas sagas largas</li></ul>
+<h3>Conclusión</h3><p>⭐8.5/10</p>
+<div class="comentarios">
+<h3>Comentarios (moderados)</h3>
+<div id="naruto-comentarios"></div>
+<input type="text" id="naruto-input" placeholder="Escribe tu comentario...">
+<button onclick="agregarComentario('naruto')">Enviar</button>
+</div>
+</div>
+</div>
+
+<!-- Bleach -->
+<div id="modal-bleach" class="modal">
+<div class="modal-content">
+<span class="cerrar" onclick="closeModal('modal-bleach')">&times;</span>
+<img src="hhttps://bleach.fandom.com/es/wiki/Ichigo_Kurosaki?file=Kurosaki_Ichigo_P.png">
+<h2>Bleach <i class="fas fa-skull-crossbones genero-icon"></i></h2>
+<p><strong>Autor:</strong> Tite Kubo</p>
+<p><strong>Género:</strong> Shonen, Acción, Sobrenatural</p>
+<h3>Resumen</h3>
+<p>Ichigo Kurosaki obtiene poderes de shinigami y debe proteger a los humanos de espíritus malignos mientras descubre la verdad sobre su pasado.</p>
+<h3>Opinión</h3>
+<ul><li>✔️ Personajes memorables</li><li>✔️ Tramas sobrenaturales</li><li>❌ Últimas sagas algo confusas</li></ul>
+<h3>Conclusión</h3><p>⭐8/10</p>
+<div class="comentarios">
+<h3>Comentarios (moderados)</h3>
+<div id="bleach-comentarios"></div>
+<input type="text" id="bleach-input" placeholder="Escribe tu comentario...">
+<button onclick="agregarComentario('bleach')">Enviar</button>
+</div>
+</div>
+</div>
+
+<!-- One Piece -->
+<div id="modal-onepiece" class="modal">
+<div class="modal-content">
+<span class="cerrar" onclick="closeModal('modal-onepiece')">&times;</span>
+<img src="https://onepiece.fandom.com/es/wiki/Monkey_D._Luffy?file=Monkey+D.+Luffy+Anime+Dos+A%C3%B1os+Despu%C3%A9s+Infobox.png">
+<h2>One Piece <i class="fas fa-anchor genero-icon"></i></h2>
+<p><strong>Autor:</strong> Eiichiro Oda</p>
+<p><strong>Género:</strong> Shonen, Aventura, Fantasía</p>
+<h3>Resumen</h3>
+<p>Luffy y su tripulación buscan el legendario tesoro “One Piece” mientras viven aventuras épicas por los mares y enfrentan enemigos poderosos.</p>
+<h3>Opinión</h3>
+<ul><li>✔️ Historia épica y coherente</li><li>✔️ Personajes entrañables</li><li>❌ Algunas sagas largas</li></ul>
+<h3>Conclusión</h3><p>⭐9.5/10</p>
+<div class="comentarios">
+<h3>Comentarios (moderados)</h3>
+<div id="onepiece-comentarios"></div>
+<input type="text" id="onepiece-input" placeholder="Escribe tu comentario...">
+<button onclick="agregarComentario('onepiece')">Enviar</button>
+</div>
+</div>
+</div>
+
+<!-- Las Quintillizas -->
+<div id="modal-quintillizas" class="modal">
+<div class="modal-content">
+<span class="cerrar" onclick="closeModal('modal-quintillizas')">&times;</span>
+<img src="https://es.wikipedia.org/wiki/Go-T%C5%8Dbun_no_Hanayome#/media/Archivo:The_Quintessential_Quintuplets_cosplayers_20190727b.jpg">
+<h2>Las Quintillizas <i class="fas fa-heart genero-icon"></i></h2>
+<p><strong>Autor:</strong> Negi Haruba</p>
+<p><strong>Género:</strong> Comedia, Romance, Escolar</p>
+<h3>Resumen</h3>
+<p>Futaro Uesugi se convierte en tutor de cinco hermanas trillizas para ayudarlas a mejorar académicamente mientras se desarrolla un juego romántico divertido.</p>
+<h3>Opinión</h3>
+<ul><li>✔️ Humor y romance equilibrado</li><li>✔️ Buen desarrollo de personajes</li><li>❌ Algunas escenas repetitivas</li></ul>
+<h3>Conclusión</h3><p>⭐8/10</p>
+<div class="comentarios">
+<h3>Comentarios (moderados)</h3>
+<div id="quintillizas-comentarios"></div>
+<input type="text" id="quintillizas-input" placeholder="Escribe tu comentario...">
+<button onclick="agregarComentario('quintillizas')">Enviar</button>
+</div>
+</div>
+</div>
+
+<!-- Nisekoi -->
+<div id="modal-nisekoi" class="modal">
+<div class="modal-content">
+<span class="cerrar" onclick="closeModal('modal-nisekoi')">&times;</span>
+<img src="https://nisekoi.fandom.com/es/wiki/Lista_de_Capitulos?file=Nisekoi_Volume_1.jpg">
+<h2>Nisekoi <i class="fas fa-handshake genero-icon"></i></h2>
+<p><strong>Autor:</strong> Naoshi Komi</p>
+<p><strong>Género:</strong> Comedia, Romance, Escolar</p>
+<h3>Resumen</h3>
+<p>Raku Ichijou, hijo de un líder Yakuza, debe fingir estar en una relación con Chitoge Kirisaki para mantener la paz entre familias rivales mientras busca a su amor de infancia.</p>
+<h3>Opinión</h3>
+<ul><li>✔️ Romance divertido y ligero</li><li>✔️ Personajes carismáticos</li><li>❌ Algunos clichés repetitivos</li></ul>
+<h3>Conclusión</h3><p>⭐7.5/10</p>
+<div class="comentarios">
+<h3>Comentarios (moderados)</h3>
+<div id="nisekoi-comentarios"></div>
+<input type="text" id="nisekoi-input" placeholder="Escribe tu comentario...">
+<button onclick="agregarComentario('nisekoi')">Enviar</button>
+</div>
+</div>
+</div>
+
+<script>
+function toggleSeccion(id){
+  document.querySelectorAll('.seccion-contenido').forEach(sec=>sec.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
+
+function buscarManga(){ filtrarManga(); }
+document.getElementById('searchInput').addEventListener('keyup', filtrarManga);
+function filtrarManga(){
+  const filter = document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll('.reseña-thumb').forEach(res=>{
+    res.style.display = res.textContent.toLowerCase().includes(filter) ? 'flex':'none';
+  });
+}
+
+function openModal(id){document.getElementById(id).style.display='block'}
+function closeModal(id){document.getElementById(id).style.display='none'}
+window.onclick=function(event){
+  document.querySelectorAll('.modal').forEach(modal=>{
+    if(event.target==modal) modal.style.display='none';
+  });
+}
+
+function agregarComentario(manga){
+  const input=document.getElementById(manga+'-input');
+  const valor=input.value.trim();
+  if(valor){
+    const cont=document.getElementById(manga+'-comentarios');
+    const nuevo=document.createElement('div');
+    nuevo.className='comentario';
+    nuevo.textContent=valor;
+    cont.appendChild(nuevo);
+    input.value='';
+  }
+}
+</script>
+
+</body>
+</html>
